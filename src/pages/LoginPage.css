@@ -85,3 +85,26 @@ body {
     font-size: 14px;
     text-align: center;
 }
+
+.admin-login-link {
+    margin-top: 15px;
+    text-align: center;
+  }
+  
+  .admin-button {
+    background-color: #111827;
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .admin-button:hover {
+    background-color: #374151;
+  }
+  
+  

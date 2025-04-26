@@ -42,7 +42,7 @@ const RegisterPage: React.FC = () => {
     setSuccess(null);
 
     try {
-      await axios.post("http://localhost:8000/register", form);
+      await axios.post("/api/register", form);
       setSuccess("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err: any) {

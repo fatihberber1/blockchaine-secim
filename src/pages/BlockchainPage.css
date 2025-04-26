@@ -1,0 +1,68 @@
+.blockchain-container {
+    min-height: 100vh;
+    padding: 40px;
+    background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .blockchain-container h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #111827;
+  }
+  
+  .error {
+    color: red;
+    margin-bottom: 20px;
+  }
+  
+  .merkle-root {
+    font-size: 16px;
+    background-color: #e0f2fe;
+    border: 1px solid #38bdf8;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 900px;
+  }
+  
+  .region-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    width: 100%;
+    max-width: 900px;
+  }
+  
+  .region-card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .region-card h2 {
+    font-size: 22px;
+    margin-bottom: 16px;
+    color: #1e293b;
+  }
+  
+  .block-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .block-card {
+    background-color: #f1f5f9;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #374151;
+    word-break: break-all;
+  }
+  

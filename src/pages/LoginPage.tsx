@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axios.post("http://localhost:8000/login", form);
+      const response = await axios.post("http://127.0.0.1:8000/login", form);
       const { access_token } = response.data;
 
       localStorage.setItem("token", access_token);
@@ -47,6 +47,7 @@ const LoginPage: React.FC = () => {
       setError(err.response?.data?.detail || "Giriş başarısız");
     }
   };
+
 
   return (
     <div className="login-container">
@@ -88,9 +89,14 @@ const LoginPage: React.FC = () => {
         <p style={{ textAlign: "center", fontSize: "14px" }}>
           Hesabın yok mu?{" "}
           <Link to="/register" style={{ color: "#4f46e5", fontWeight: "500" }}>
-            Kayıt ol
+            Kayıt Ol
           </Link>
         </p>
+        <p style={{ textAlign: "center", fontSize: "14px" }}>Yetkili girişi için{" "}
+        <Link to="/admin" style={{ color: "#4f46e5", fontWeight: "500" }}>
+            Yetkili Girişi
+          </Link>
+          </p>
       </form>
     </div>
   );
