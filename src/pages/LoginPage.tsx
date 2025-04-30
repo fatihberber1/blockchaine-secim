@@ -33,7 +33,14 @@ const LoginPage: React.FC = () => {
     <div className="login-wrapper">
       <div className="login-left">
         <h1>E-Seçim Sistemine Hoş Geldiniz</h1>
-        <p>Güvenli ve şeffaf oy kullanma deneyimi için giriş yapın.</p>
+        <p>Güvenli ve şeffaf oy kullanma deneyimi için giriş yapın veya kaydınız yoksa kayıt olun.</p>
+
+        <ul className="info-points">
+          <li><strong>Blockchain Tabanlı</strong> — Her oy şifreli olarak kayıt altına alınır.</li>
+          <li><strong>Şeffaflık</strong> — Tüm veriler doğrulanabilir ve izlenebilir.</li>
+          <li><strong>Erişilebilirlik</strong> — Türkiye’nin her bölgesinden katılım sağlanabilir.</li>
+          <li><strong>Yetkili Doğrulama</strong> — Girişler T.C. Kimlik No ile güvence altındadır.</li>
+        </ul>
       </div>
 
       <div className="login-right">
@@ -70,8 +77,7 @@ const LoginPage: React.FC = () => {
 
           <div className="login-links">
             <p>
-              Hesabınız yok mu?{" "}
-              <Link to="/register">Kayıt Ol</Link>
+              Hesabınız yok mu? <Link to="/register">Kayıt Ol</Link>
             </p>
             <p>
               <Link to="/admin">Yetkili Girişi</Link>
