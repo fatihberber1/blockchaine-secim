@@ -16,10 +16,12 @@ interface MerkleStructure {
   merkle_root: string;
   children: {
     region: string;
+    status: string;
+    merkle_root: string;
+    updated_at?: string;
     blocks: Block[];
   }[];
 }
-
 const BlockchainPage: React.FC = () => {
   const [structure, setStructure] = useState<MerkleStructure | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,19 +53,35 @@ const BlockchainPage: React.FC = () => {
           <div className="region-blocks">
             {structure.children.map((regionData) => (
               <div className="region-card" key={regionData.region}>
-                <h2>{regionData.region}</h2>
-                <div className="block-list">
-                  {regionData.blocks.map((block, i) => (
-                    <div className="block-card" key={i}>
-                      <p><strong>Index:</strong> {block.index}</p>
-                      <p><strong>Aday:</strong> {block.candidate}</p>
-                      <p><strong>Timestamp:</strong> {new Date(block.timestamp * 1000).toLocaleString()}</p>
-                      <p><strong>Voter ID Hash:</strong> {block.voter_id_hash}</p>
-                      <p><strong>Prev Hash:</strong> {block.previous_hash}</p>
-                      <p><strong>Hash:</strong> {block.hash}</p>
-                    </div>
-                  ))}
-                </div>
+                <div className="region-card" key={regionData.region}>
+  <h2>{regionData.region}</h2>
+
+  <div className="region-header">
+    <p><strong>Durum:</strong>{" "}
+      <span className={regionData.status === "OK" ? "status-ok" : "status-broken"}>
+        {regionData.status}
+      </span>
+    </p>
+    <p><strong>Merkle Root:</strong> {regionData.merkle_root || "Yok"}</p>
+    {regionData.updated_at && (
+      <p><strong>Güncellendi:</strong> {regionData.updated_at}</p>
+    )}
+  </div>
+
+  <div className="block-list">
+    {regionData.blocks.map((block, i) => (
+      <div className="block-card" key={i}>
+        <p><strong>Index:</strong> {block.index}</p>
+        <p><strong>Aday:</strong> {block.candidate}</p>
+        <p><strong>Timestamp:</strong> {new Date(block.timestamp * 1000).toLocaleString()}</p>
+        <p><strong>Voter ID Hash:</strong> {block.voter_id_hash}</p>
+        <p><strong>Prev Hash:</strong> {block.previous_hash}</p>
+        <p><strong>Hash:</strong> {block.hash}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
               </div>
             ))}
           </div>
