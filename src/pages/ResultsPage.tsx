@@ -1,79 +1,136 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  Legend, ResponsiveContainer
+} from "recharts";
 import "./ResultsPage.css";
 
-interface VerifiedResults {
-  [candidate: string]: number;
+interface ResultsData {
+  [region: string]: {
+    [candidate: string]: number;
+  };
 }
 
-interface InvalidBlock {
-  region: string;
-  index: number;
-  candidate: string;
-  hash_in_db: string;
-  expected_hash: string;
-}
+const STATIC_REGIONS = [
+  "Marmara", "Ege", "Akdeniz",
+  "İç Anadolu", "Karadeniz",
+  "Doğu Anadolu", "Güneydoğu Anadolu"
+];
+
+const COLORS = ["#4f46e5", "#9333ea", "#f97316", "#06b6d4"];
 
 const ResultsPage: React.FC = () => {
-  const [verifiedResults, setVerifiedResults] = useState<VerifiedResults>({});
-  const [invalidBlocks, setInvalidBlocks] = useState<InvalidBlock[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<ResultsData>({});
+  const [selectedRegion, setSelectedRegion] = useState<string>("Ulusal");
 
   useEffect(() => {
-    fetchVerifiedResults();
+    axios.get<Record<string, any[]>>("http://127.0.0.1:8000/chains")
+      .then(res => {
+        const raw = res.data;
+        const tally: ResultsData = {};
+
+        Object.entries(raw).forEach(([region, blocks]) => {
+          tally[region] = {};
+          blocks
+            .filter(b => b.index > 0)
+            .forEach(b => {
+              tally[region][b.candidate] = (tally[region][b.candidate] || 0) + 1;
+            });
+        });
+
+        setResults(tally);
+      })
+      .catch(() => console.error("Zincir verisi alınamadı"));
   }, []);
 
-  const fetchVerifiedResults = async () => {
-    try {
-      const response = await axios.get<{
-        verified_results: VerifiedResults;
-        invalid_blocks: InvalidBlock[];
-      }>("http://127.0.0.1:8000/results/verified");
+  const allRegions = ["Ulusal", ...STATIC_REGIONS];
+  const allCandidates = Array.from(
+    new Set(Object.values(results).flatMap(r => Object.keys(r)))
+  );
 
-      setVerifiedResults(response.data.verified_results);
-      setInvalidBlocks(response.data.invalid_blocks);
-    } catch (err) {
-      console.error(err);
-      setError("Sonuçlar yüklenemedi.");
-    }
-  };
+  const multiSeriesData = STATIC_REGIONS.map(region => ({
+    region,
+    ...results[region]
+  }));
+
+  const singleSeriesData = allCandidates.map(name => ({
+    name,
+    oy: (results[selectedRegion]?.[name] || 0)
+  }));
 
   return (
-    <div className="results-container">
-      <h1>Doğrulanmış Seçim Sonuçları</h1>
-      {error && <p className="error">{error}</p>}
+    <div className="results-page">
+      <div className="page-container">
+        <header className="results-header">
+          <h1>Seçim Sonuçları</h1>
+          <p>Bölgelere göre aday bazlı oy dağılımı ve toplamlar</p>
+        </header>
 
-      {/* 1) Global verified sonuçlar */}
-      <div className="verified-results">
-        <h2>Geçerli Oy Sayımı</h2>
-        <ul>
-          {Object.entries(verifiedResults).map(([candidate, count]) => (
-            <li key={candidate}>
-              <strong>{candidate}</strong>: {count} oy
-            </li>
-          ))}
-        </ul>
+        <section className="summary-cards">
+          {allCandidates.map((cand, i) => {
+            const total = Object.values(results)
+              .reduce((sum, reg) => sum + (reg[cand] || 0), 0);
+            return (
+              <div key={cand} className={`card card-${i % COLORS.length}`}>
+                <div className="card-icon">👤</div>
+                <h3>{cand}</h3>
+                <p className="card-votes">{total} Oy</p>
+              </div>
+            );
+          })}
+        </section>
+
+        <section className="main-dashboard">
+          <aside className="filter-panel">
+            <label htmlFor="region">Bölge Seç:</label>
+            <select
+              id="region"
+              value={selectedRegion}
+              onChange={e => setSelectedRegion(e.target.value)}
+            >
+              {allRegions.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </aside>
+
+          <div className="chart-panel">
+            {selectedRegion === "Ulusal" ? (
+              <>
+                <h2>Bölgesel Oy Dağılımı</h2>
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={multiSeriesData}
+                    margin={{ top:20, right:30, left:10, bottom:10 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="region" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Legend />
+                    {allCandidates.map((cand, i) => (
+                      <Bar key={cand} dataKey={cand}
+                        fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              </>
+            ) : (
+              <>
+                <h2>{selectedRegion} Bölgesindeki Oy Dağılımı</h2>
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={singleSeriesData}
+                    margin={{ top:20, right:30, left:10, bottom:10 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="oy" fill={COLORS[0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </>
+            )}
+          </div>
+        </section>
+
       </div>
-
-      {/* 2) Invalid bloklar */}
-      {invalidBlocks.length > 0 && (
-        <div className="anomalies">
-          <h2>Geçersiz Bloklar / Uyarılar</h2>
-          <ul>
-            {invalidBlocks.map((blk) => (
-              <li key={`${blk.region}-${blk.index}`}>
-                Bölge <strong>{blk.region}</strong>, blok #{blk.index} —{" "}
-                <em>{blk.candidate}</em>
-                <br />
-                <small>
-                  DB hash: {blk.hash_in_db.slice(0, 8)}… vs Beklenen:{" "}
-                  {blk.expected_hash.slice(0, 8)}…
-                </small>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };

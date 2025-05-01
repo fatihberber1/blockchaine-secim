@@ -1,48 +1,151 @@
-.results-container {
-    min-height: 100vh;
-    padding: 40px;
-    background: linear-gradient(135deg, #f9fafb, #e5e7eb);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .results-container h1 {
-    font-size: 32px;
-    margin-bottom: 30px;
-    color: #111827;
-  }
-  
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    width: 100%;
-    max-width: 1000px;
-  }
-  
-  .result-card {
-    background-color: white;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .result-card h2 {
-    margin-bottom: 12px;
-    font-size: 20px;
-    color: #1f2937;
-    text-align: center;
-  }
-  
-  .result-card ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .result-card li {
-    font-size: 16px;
-    color: #374151;
-    padding: 6px 0;
-  }
-  
+/* Sayfa zeminini ve içerik container'ını tanımlıyoruz */
+.results-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px 0;
+  background: #f5f7fa;
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 40px 0;
+  background: #f5f7fa;
+  box-sizing: border-box;
+}
+
+.page-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* Başlık */
+.results-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.results-header h1 {
+  font-size: 2.25rem;
+  color: #1f2937;
+  margin: 0;
+}
+.results-header p {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-top: 8px;
+}
+
+/* Özet kartları: responsive grid */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+/* Kartın genel stili */
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 20px;
+  border-radius: 16px;
+  color: #ffffff;
+  min-height: 200px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Kart iconu */
+.card-icon {
+  text-align: center;
+  font-size: 2rem;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
+/* Kart başlığı (aday adı) */
+.card h3 {
+  text-align: center;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+/* Oy sayısı */
+.card-votes {
+  text-align: center;
+  font-size: 1.125rem;
+  margin: 12px 0;
+}
+
+/* Detay butonu */
+.card-btn {
+  align-self: center;
+  background: #ffffff;
+  color: #000000;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.card-btn:hover {
+  opacity: 0.9;
+}
+
+/* Renk setleri: 0,1,2,3 için gradient arkaplan */
+.card-0 {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+.card-1 {
+  background: linear-gradient(135deg, #9333ea 0%, #8b5cf6 100%);
+}
+.card-2 {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+.card-3 {
+  background: linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%);
+}
+
+/* Filtre + Grafik bölümü: sidebar ve panel oranlarını 1:3 yapıyoruz */
+.main-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Sidebar (filtre) stili */
+.filter-panel {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.filter-panel label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+.filter-panel select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Grafik paneli stili */
+.chart-panel {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.chart-panel h2 {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
