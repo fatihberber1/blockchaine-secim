@@ -11,17 +11,22 @@ interface Block {
   hash: string;
 }
 
-interface MerkleStructure {
-  root: string;
-  merkle_root: string;
-  children: {
-    region: string;
-    status: string;
-    merkle_root: string;
-    updated_at?: string;
-    blocks: Block[];
-  }[];
+interface RegionEntry {
+  region: string;
+  status: string;
+  live_root: string;
+  updated_at?: string;
+  blocks: Block[];
 }
+
+interface MerkleStructure {
+  root: string; // "Ulusal Seçim Zinciri"
+  regions: RegionEntry[]; // children yerine regions
+  stored_merkle_root: string; // eğer kullanıyorsan
+  live_merkle_root: string;
+  match: boolean;
+}
+
 const BlockchainPage: React.FC = () => {
   const [structure, setStructure] = useState<MerkleStructure | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -32,61 +37,84 @@ const BlockchainPage: React.FC = () => {
 
   const fetchBlockchain = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/structure");
+      const response = await axios.get<MerkleStructure>(
+        "http://127.0.0.1:8000/structure"
+      );
       setStructure(response.data);
     } catch (err) {
       setError("Blockchain verisi alınamadı.");
     }
   };
 
+  if (error) {
+    return <p className="error">{error}</p>;
+  }
+
+  if (!structure) {
+    return <p>Yükleniyor…</p>;
+  }
+
   return (
     <div className="blockchain-container">
       <h1>Blockchain Yapısı</h1>
-      {error && <p className="error">{error}</p>}
 
-      {structure && (
-        <>
-          <p className="merkle-root">
-            <strong>Merkle Root:</strong> {structure.merkle_root}
-          </p>
+      <p className="merkle-root">
+        <strong>Ulusal Merkle Root:</strong> {structure.live_merkle_root}
+      </p>
 
-          <div className="region-blocks">
-            {structure.children.map((regionData) => (
-              <div className="region-card" key={regionData.region}>
-                <div className="region-card" key={regionData.region}>
-  <h2>{regionData.region}</h2>
+      <div className="region-blocks">
+        {structure.regions.map((regionData) => (
+          <div className="region-card" key={regionData.region}>
+            <h2>{regionData.region}</h2>
+            <div className="region-header">
+              <p>
+                <strong>Durum:</strong>{" "}
+                <span
+                  className={
+                    regionData.status === "OK" ? "status-ok" : "status-broken"
+                  }
+                >
+                  {regionData.status}
+                </span>
+              </p>
+              <p>
+                <strong>Bölge Merkle Root:</strong> {regionData.live_root}
+              </p>
+              {regionData.updated_at && (
+                <p>
+                  <strong>Güncellendi:</strong> {regionData.updated_at}
+                </p>
+              )}
+            </div>
 
-  <div className="region-header">
-    <p><strong>Durum:</strong>{" "}
-      <span className={regionData.status === "OK" ? "status-ok" : "status-broken"}>
-        {regionData.status}
-      </span>
-    </p>
-    <p><strong>Merkle Root:</strong> {regionData.merkle_root || "Yok"}</p>
-    {regionData.updated_at && (
-      <p><strong>Güncellendi:</strong> {regionData.updated_at}</p>
-    )}
-  </div>
-
-  <div className="block-list">
-    {regionData.blocks.map((block, i) => (
-      <div className="block-card" key={i}>
-        <p><strong>Index:</strong> {block.index}</p>
-        <p><strong>Aday:</strong> {block.candidate}</p>
-        <p><strong>Timestamp:</strong> {new Date(block.timestamp * 1000).toLocaleString()}</p>
-        <p><strong>Voter ID Hash:</strong> {block.voter_id_hash}</p>
-        <p><strong>Prev Hash:</strong> {block.previous_hash}</p>
-        <p><strong>Hash:</strong> {block.hash}</p>
-      </div>
-    ))}
-  </div>
-</div>
-
-              </div>
-            ))}
+            <div className="block-list">
+              {regionData.blocks.map((block) => (
+                <div className="block-card" key={block.index}>
+                  <p>
+                    <strong>Index:</strong> {block.index}
+                  </p>
+                  <p>
+                    <strong>Aday:</strong> {block.candidate}
+                  </p>
+                  <p>
+                    <strong>Zaman:</strong>{" "}
+                    {new Date(block.timestamp * 1000).toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Voter ID Hash:</strong> {block.voter_id_hash}
+                  </p>
+                  <p>
+                    <strong>Önceki Hash:</strong> {block.previous_hash}
+                  </p>
+                  <p>
+                    <strong>Hash:</strong> {block.hash}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
