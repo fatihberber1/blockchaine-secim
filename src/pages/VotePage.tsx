@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./VotePage.css";
 
 interface Candidate {
@@ -7,6 +8,7 @@ interface Candidate {
 }
 
 const VotePage: React.FC = () => {
+  const navigate = useNavigate();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -21,13 +23,11 @@ const VotePage: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get("http://127.0.0.1:8000/candidates", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const candidateList = response.data.candidates.map((name: string) => ({ name }));
       setCandidates(candidateList);
-    } catch (err) {
+    } catch {
       setError("Adaylar yüklenemedi.");
     }
   };
@@ -39,7 +39,6 @@ const VotePage: React.FC = () => {
 
   const confirmVote = async () => {
     if (!selectedCandidate) return;
-
     try {
       setError(null);
       setSuccess(null);
@@ -47,11 +46,7 @@ const VotePage: React.FC = () => {
       await axios.post(
         "http://127.0.0.1:8000/vote",
         { candidate: selectedCandidate },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setSuccess(`Başarıyla ${selectedCandidate} için oy kullandınız!`);
     } catch (err: any) {
@@ -67,31 +62,50 @@ const VotePage: React.FC = () => {
     setSelectedCandidate(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
-    <div className="vote-container">
-      <h2>Oy Kullan</h2>
+    <div className="vote-wrapper">
+      {/* Sayfanın sağ üstüne taşınmış Logout butonu */}
+      <button className="logout-btn" onClick={handleLogout}>
+        Çıkış Yap
+      </button>
 
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success">{success}</p>}
+      <div className="vote-sheet">
+        <h2>Oy Kullan</h2>
 
-      <div className="candidates-grid">
-        {candidates.map((candidate, index) => (
-          <div className="candidate-card" key={index}>
-            <h3>{candidate.name}</h3>
-            <button onClick={() => handleVoteClick(candidate.name)}>
-              Oy Ver
-            </button>
-          </div>
-        ))}
+        {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
+
+        <div className="candidates-grid">
+          {candidates.map((candidate, idx) => (
+            <div className="candidate-card" key={idx}>
+              <div className="card-icon" role="img" aria-label="avatar">👤</div>
+              <h3>{candidate.name}</h3>
+              <button onClick={() => handleVoteClick(candidate.name)}>
+                Oy Ver
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       {showConfirm && selectedCandidate && (
         <div className="confirm-overlay">
           <div className="confirm-card">
-            <h3>{selectedCandidate} isimli adaya oy vermek istediğinize emin misiniz?</h3>
+            <h3>
+              {selectedCandidate} isimli adaya oy vermek istediğinize emin misiniz?
+            </h3>
             <div className="confirm-buttons">
-              <button className="confirm-yes" onClick={confirmVote}>Evet</button>
-              <button className="confirm-no" onClick={cancelVote}>Hayır</button>
+              <button className="confirm-yes" onClick={confirmVote}>
+                Evet
+              </button>
+              <button className="confirm-no" onClick={cancelVote}>
+                Hayır
+              </button>
             </div>
           </div>
         </div>
