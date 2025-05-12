@@ -9,27 +9,32 @@ interface Block {
   voter_id_hash: string;
   candidate: string;
   hash: string;
+  signature?: string;
 }
 
 interface RegionEntry {
   region: string;
   status: string;
   live_root: string;
+  signatures_valid?: boolean;
   updated_at?: string;
   blocks: Block[];
 }
 
 interface MerkleStructure {
-  root: string; // "Ulusal Seçim Zinciri"
-  regions: RegionEntry[]; // children yerine regions
-  stored_merkle_root: string; // eğer kullanıyorsan
+  root: string;
+  regions: RegionEntry[];
+  stored_merkle_root: string;
   live_merkle_root: string;
+  stored_signature?: string;
+  signature_valid?: boolean;
   match: boolean;
 }
 
 const BlockchainPage: React.FC = () => {
   const [structure, setStructure] = useState<MerkleStructure | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchBlockchain();
@@ -37,30 +42,83 @@ const BlockchainPage: React.FC = () => {
 
   const fetchBlockchain = async () => {
     try {
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
       const response = await axios.get<MerkleStructure>(
-        "http://127.0.0.1:8000/structure"
+        "http://127.0.0.1:8000/structure",
+        { headers }
       );
       setStructure(response.data);
+      setLoading(false);
     } catch (err) {
       setError("Blockchain verisi alınamadı.");
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="blockchain-container">
+        <p>Yükleniyor...</p>
+      </div>
+    );
+  }
+
   if (error) {
-    return <p className="error">{error}</p>;
+    return (
+      <div className="blockchain-container">
+        <p className="error">{error}</p>
+      </div>
+    );
   }
 
   if (!structure) {
-    return <p>Yükleniyor…</p>;
+    return (
+      <div className="blockchain-container">
+        <p>Veri bulunamadı.</p>
+      </div>
+    );
   }
 
   return (
     <div className="blockchain-container">
       <h1>Blockchain Yapısı</h1>
 
-      <p className="merkle-root">
-        <strong>Ulusal Merkle Root:</strong> {structure.live_merkle_root}
-      </p>
+      <div className="merkle-summary">
+        <h2>Ulusal Merkle Ağacı</h2>
+        <div className="merkle-info">
+          <p>
+            <strong>Canlı Merkle Root:</strong> {structure.live_merkle_root}
+          </p>
+          <p>
+            <strong>Kayıtlı Merkle Root:</strong> {structure.stored_merkle_root}
+          </p>
+
+          {structure.stored_signature && (
+            <p>
+              <strong>İmza:</strong>
+              <span className="signature-text">
+                {structure.stored_signature.substring(0, 20)}...
+              </span>
+              <span
+                className={
+                  structure.signature_valid
+                    ? "valid-signature"
+                    : "invalid-signature"
+                }
+              >
+                {structure.signature_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+              </span>
+            </p>
+          )}
+
+          <p className={structure.match ? "match-valid" : "match-invalid"}>
+            <strong>Eşleşme Durumu:</strong>
+            {structure.match ? "✓ Tutarlı" : "✗ Tutarsız"}
+          </p>
+        </div>
+      </div>
 
       <div className="region-blocks">
         {structure.regions.map((regionData) => (
@@ -74,12 +132,28 @@ const BlockchainPage: React.FC = () => {
                     regionData.status === "OK" ? "status-ok" : "status-broken"
                   }
                 >
-                  {regionData.status}
+                  {regionData.status === "OK" ? "✓ Geçerli" : "✗ Geçersiz"}
                 </span>
               </p>
               <p>
                 <strong>Bölge Merkle Root:</strong> {regionData.live_root}
               </p>
+
+              {regionData.signatures_valid !== undefined && (
+                <p>
+                  <strong>İmza Doğrulaması:</strong>{" "}
+                  <span
+                    className={
+                      regionData.signatures_valid
+                        ? "status-ok"
+                        : "status-broken"
+                    }
+                  >
+                    {regionData.signatures_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+                  </span>
+                </p>
+              )}
+
               {regionData.updated_at && (
                 <p>
                   <strong>Güncellendi:</strong> {regionData.updated_at}
@@ -101,7 +175,7 @@ const BlockchainPage: React.FC = () => {
                     {new Date(block.timestamp * 1000).toLocaleString()}
                   </p>
                   <p>
-                    <strong>Voter ID Hash:</strong> {block.voter_id_hash}
+                    <strong>Seçmen Hash:</strong> {block.voter_id_hash}
                   </p>
                   <p>
                     <strong>Önceki Hash:</strong> {block.previous_hash}
@@ -109,6 +183,15 @@ const BlockchainPage: React.FC = () => {
                   <p>
                     <strong>Hash:</strong> {block.hash}
                   </p>
+
+                  {block.signature && (
+                    <p className="signature">
+                      <strong>İmza:</strong>
+                      <span className="signature-text">
+                        {block.signature.substring(0, 15)}...
+                      </span>
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
