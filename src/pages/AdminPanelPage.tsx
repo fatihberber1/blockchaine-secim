@@ -40,13 +40,13 @@ const AdminPanelPage: React.FC = () => {
       );
       setLoading(false);
       // Hata durumunda 3 saniye sonra login sayfasına yönlendir
-      setTimeout(() => navigate("/admin"), 3000);
+      setTimeout(() => navigate("/login"), 3000);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/admin");
+    navigate("/login");
   };
 
   if (loading) {

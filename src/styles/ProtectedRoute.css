@@ -1,0 +1,87 @@
+.auth-message {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+}
+
+.message-box {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.message-box h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.message-box p {
+  margin-bottom: 1rem;
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.unauthorized .message-box {
+  border-top: 5px solid #e74c3c;
+}
+
+.unauthorized .message-box h2 {
+  color: #c0392b;
+}
+
+.loading .message-box {
+  border-top: 5px solid #3498db;
+}
+
+.loading .message-box h2 {
+  color: #2980b9;
+}
+
+.countdown {
+  font-weight: bold;
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.spinner {
+  margin: 0 auto 1.5rem;
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(52, 152, 219, 0.2);
+  border-radius: 50%;
+  border-top-color: #3498db;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
