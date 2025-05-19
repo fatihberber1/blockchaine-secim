@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -48,6 +49,7 @@ const COLORS = [
 type ChartType = "pie" | "bar" | "line" | "comparison";
 
 const ResultsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [results, setResults] = useState<ResultsData>({});
   const [selectedRegion, setSelectedRegion] = useState<string>("Ulusal");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -347,6 +349,9 @@ const ResultsPage: React.FC = () => {
     <div className="results-page">
       <div className="page-container">
         <header className="results-header">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            ← Geri
+          </button>
           <h1>Seçim Sonuçları</h1>
           <p>Bölgelere göre aday bazlı oy dağılımı ve toplamlar</p>
         </header>
