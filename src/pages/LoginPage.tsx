@@ -56,7 +56,7 @@ const LoginPage: React.FC = () => {
       localStorage.setItem("token", response.data.access_token);
       navigate("/admin");
     } catch (err: any) {
-      setAdminError(err.response?.data?.detail || "Admin girişi başarısız.");
+      setAdminError(err.response?.data?.detail || "Yönetici girişi başarısız.");
     }
   };
 
@@ -69,29 +69,20 @@ const LoginPage: React.FC = () => {
   return (
     <div className="login-wrapper">
       <div className="login-left">
-        <h1>E-Seçim Sistemine Hoş Geldiniz</h1>
+        <h1>Elektronik Seçim Sistemi Giriş Platformu</h1>
         <p>
-          Güvenli ve şeffaf oy kullanma deneyimi için giriş yapın veya kaydınız
-          yoksa kayıt olun.
+          Güvenli blockchain teknolojisi ile desteklenen seçim sistemine giriş
+          yapın. Kayıtlı değilseniz sistem kaydınızı tamamlayın.
         </p>
 
         <ul className="info-points">
           <li>
-            <strong>Blockchain Tabanlı</strong> — Her oy şifreli olarak kayıt
-            altına alınır.
+            Blockchain teknolojisi ile her oy şifreli olarak kayıt altına alınır
           </li>
-          <li>
-            <strong>Şeffaflık</strong> — Tüm veriler doğrulanabilir ve
-            izlenebilir.
-          </li>
-          <li>
-            <strong>Erişilebilirlik</strong> — Türkiye'nin her bölgesinden
-            katılım sağlanabilir.
-          </li>
-          <li>
-            <strong>Yetkili Doğrulama</strong> — Girişler T.C. Kimlik No ile
-            güvence altındadır.
-          </li>
+          <li>Tüm veriler doğrulanabilir ve şeffaf bir şekilde izlenebilir</li>
+          <li>Türkiye'nin tüm bölgelerinden güvenli erişim sağlanabilir</li>
+          <li>Kimlik doğrulama T.C. Kimlik Numarası ile güvence altındadır</li>
+          <li>Merkle ağacı teknolojisi ile veri bütünlüğü garanti edilir</li>
         </ul>
       </div>
 
@@ -100,17 +91,18 @@ const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="login-form">
             <h2>Seçmen Girişi</h2>
 
-            <label>T.C. Kimlik No</label>
+            <label>T.C. Kimlik Numarası</label>
             <input
               type="text"
               name="tc"
               value={form.tc}
               onChange={handleChange}
               maxLength={11}
+              placeholder="11 haneli T.C. kimlik numaranız"
               required
             />
 
-            <label>Bölge</label>
+            <label>Bölge Seçimi</label>
             <select name="region" value={form.region} onChange={handleChange}>
               {regions.map((r) => (
                 <option key={r} value={r}>
@@ -119,22 +111,24 @@ const LoginPage: React.FC = () => {
               ))}
             </select>
 
-            <label>Şifre</label>
+            <label>Güvenlik Şifresi</label>
             <input
               type="password"
               name="password"
               value={form.password}
               onChange={handleChange}
+              placeholder="Kayıt sırasında oluşturduğunuz şifre"
               required
             />
 
             {error && <p className="error">{error}</p>}
 
-            <button type="submit">Giriş Yap</button>
+            <button type="submit">Sisteme Giriş Yap</button>
 
             <div className="login-links">
               <p>
-                Hesabınız yok mu? <Link to="/register">Kayıt Ol</Link>
+                Kayıtlı değil misiniz?{" "}
+                <Link to="/register">Seçmen Kaydı Yapın</Link>
               </p>
               <p>
                 <button
@@ -142,14 +136,14 @@ const LoginPage: React.FC = () => {
                   className="link-button"
                   onClick={toggleLoginForm}
                 >
-                  Yetkili Girişi
+                  Yönetici Girişi
                 </button>
               </p>
             </div>
           </form>
         ) : (
           <form onSubmit={handleAdminSubmit} className="login-form admin-form">
-            <h2>Yetkili Girişi</h2>
+            <h2>Yönetici Girişi</h2>
 
             <label>Kullanıcı Adı</label>
             <input
@@ -157,21 +151,23 @@ const LoginPage: React.FC = () => {
               name="username"
               value={adminForm.username}
               onChange={handleAdminChange}
+              placeholder="Yönetici kullanıcı adınız"
               required
             />
 
-            <label>Şifre</label>
+            <label>Yönetici Şifresi</label>
             <input
               type="password"
               name="password"
               value={adminForm.password}
               onChange={handleAdminChange}
+              placeholder="Yönetici şifreniz"
               required
             />
 
             {adminError && <p className="error">{adminError}</p>}
 
-            <button type="submit">Yetkili Girişi</button>
+            <button type="submit">Yönetici Paneline Giriş</button>
 
             <div className="login-links">
               <p>

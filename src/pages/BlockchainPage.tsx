@@ -97,6 +97,75 @@ const BlockchainPage: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="blockchain-container">
+        <div className="blockchain-header">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <span>←</span>
+            Geri
+          </button>
+          <div className="header-title">
+            <h1>Blockchain Yapısı</h1>
+            <p>Blok zinciri ve Merkle ağacı analizi</p>
+          </div>
+        </div>
+
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Blockchain verisi yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="blockchain-container">
+        <div className="blockchain-header">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <span>←</span>
+            Geri
+          </button>
+          <div className="header-title">
+            <h1>Blockchain Yapısı</h1>
+            <p>Blok zinciri ve Merkle ağacı analizi</p>
+          </div>
+        </div>
+
+        <div className="error-container">
+          <span className="error-icon">!</span>
+          <p>{error}</p>
+          <button className="retry-button" onClick={fetchBlockchain}>
+            Tekrar Dene
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!structure) {
+    return (
+      <div className="blockchain-container">
+        <div className="blockchain-header">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <span>←</span>
+            Geri
+          </button>
+          <div className="header-title">
+            <h1>Blockchain Yapısı</h1>
+            <p>Blok zinciri ve Merkle ağacı analizi</p>
+          </div>
+        </div>
+
+        <div className="no-data-container">
+          <span className="no-data-icon">-</span>
+          <p>Blockchain verisi bulunamadı</p>
+        </div>
+      </div>
+    );
+  }
+
   // Blok detaylarını gösteren modal
   const renderDetailModal = () => {
     if (!selectedDetail) return null;
@@ -116,39 +185,54 @@ const BlockchainPage: React.FC = () => {
               className="detail-content block-detail"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3>Blok #{block.index} Detayları</h3>
-              <div className="detail-item">
-                <span>Aday:</span>
-                <span>{block.candidate}</span>
+              <div className="detail-header">
+                <h3>Blok #{block.index} Detayları</h3>
+                <button
+                  className="close-button"
+                  onClick={() => setSelectedDetail(null)}
+                >
+                  ✕
+                </button>
               </div>
-              <div className="detail-item">
-                <span>Zaman:</span>
-                <span>{new Date(block.timestamp * 1000).toLocaleString()}</span>
-              </div>
-              <div className="detail-item">
-                <span>Seçmen Hash:</span>
-                <span className="hash-text">{block.voter_id_hash}</span>
-              </div>
-              <div className="detail-item">
-                <span>Hash:</span>
-                <span className="hash-text">{block.hash}</span>
-              </div>
-              <div className="detail-item">
-                <span>Önceki Hash:</span>
-                <span className="hash-text">{block.previous_hash}</span>
-              </div>
-              {block.signature && (
+
+              <div className="detail-grid">
                 <div className="detail-item">
-                  <span>İmza:</span>
-                  <span className="hash-text">{block.signature}</span>
+                  <span className="detail-label">Aday:</span>
+                  <span className="detail-value candidate-name">
+                    {block.candidate}
+                  </span>
                 </div>
-              )}
-              <button
-                className="close-button"
-                onClick={() => setSelectedDetail(null)}
-              >
-                Kapat
-              </button>
+                <div className="detail-item">
+                  <span className="detail-label">Zaman:</span>
+                  <span className="detail-value">
+                    {new Date(block.timestamp * 1000).toLocaleString()}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Seçmen Hash:</span>
+                  <span className="detail-value hash-text">
+                    {block.voter_id_hash}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Blok Hash:</span>
+                  <span className="detail-value hash-text">{block.hash}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Önceki Hash:</span>
+                  <span className="detail-value hash-text">
+                    {block.previous_hash}
+                  </span>
+                </div>
+                {block.signature && (
+                  <div className="detail-item">
+                    <span className="detail-label">İmza:</span>
+                    <span className="detail-value hash-text">
+                      {block.signature}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -164,49 +248,58 @@ const BlockchainPage: React.FC = () => {
               className="detail-content region-detail"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3>{region.region} Bölgesi Detayları</h3>
-              <div className="detail-item">
-                <span>Durum:</span>
-                <span
-                  className={
-                    region.status === "OK" ? "status-ok" : "status-broken"
-                  }
+              <div className="detail-header">
+                <h3>Bölge Detayları: {region.region}</h3>
+                <button
+                  className="close-button"
+                  onClick={() => setSelectedDetail(null)}
                 >
-                  {region.status === "OK" ? "✓ Geçerli" : "✗ Geçersiz"}
-                </span>
+                  ✕
+                </button>
               </div>
-              <div className="detail-item">
-                <span>Merkle Root:</span>
-                <span className="hash-text">{region.live_root}</span>
-              </div>
-              {region.signatures_valid !== undefined && (
+
+              <div className="detail-grid">
                 <div className="detail-item">
-                  <span>İmzalar:</span>
+                  <span className="detail-label">Durum:</span>
                   <span
-                    className={
-                      region.signatures_valid ? "status-ok" : "status-broken"
-                    }
+                    className={`detail-value status-badge ${
+                      region.status === "OK" ? "status-ok" : "status-broken"
+                    }`}
                   >
-                    {region.signatures_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+                    {region.status === "OK" ? "✓ Geçerli" : "✗ Geçersiz"}
                   </span>
                 </div>
-              )}
-              {region.updated_at && (
                 <div className="detail-item">
-                  <span>Güncelleme:</span>
-                  <span>{region.updated_at}</span>
+                  <span className="detail-label">Merkle Root:</span>
+                  <span className="detail-value hash-text">
+                    {region.live_root}
+                  </span>
                 </div>
-              )}
-              <div className="detail-item">
-                <span>Blok Sayısı:</span>
-                <span>{region.blocks.length}</span>
+                {region.signatures_valid !== undefined && (
+                  <div className="detail-item">
+                    <span className="detail-label">İmzalar:</span>
+                    <span
+                      className={`detail-value status-badge ${
+                        region.signatures_valid ? "status-ok" : "status-broken"
+                      }`}
+                    >
+                      {region.signatures_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+                    </span>
+                  </div>
+                )}
+                {region.updated_at && (
+                  <div className="detail-item">
+                    <span className="detail-label">Güncelleme:</span>
+                    <span className="detail-value">{region.updated_at}</span>
+                  </div>
+                )}
+                <div className="detail-item">
+                  <span className="detail-label">Blok Sayısı:</span>
+                  <span className="detail-value block-count">
+                    {region.blocks.length}
+                  </span>
+                </div>
               </div>
-              <button
-                className="close-button"
-                onClick={() => setSelectedDetail(null)}
-              >
-                Kapat
-              </button>
             </div>
           </div>
         );
@@ -222,49 +315,62 @@ const BlockchainPage: React.FC = () => {
               className="detail-content root-detail"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3>Merkle Ağacı Detayları</h3>
-              <div className="detail-item">
-                <span>Canlı Merkle Root:</span>
-                <span className="hash-text">{merkle.live_merkle_root}</span>
-              </div>
-              <div className="detail-item">
-                <span>Kayıtlı Merkle Root:</span>
-                <span className="hash-text">{merkle.stored_merkle_root}</span>
-              </div>
-              <div className="detail-item">
-                <span>Eşleşme Durumu:</span>
-                <span
-                  className={merkle.match ? "match-valid" : "match-invalid"}
+              <div className="detail-header">
+                <h3>Merkle Ağacı Detayları</h3>
+                <button
+                  className="close-button"
+                  onClick={() => setSelectedDetail(null)}
                 >
-                  {merkle.match ? "✓ Tutarlı" : "✗ Tutarsız"}
-                </span>
+                  ✕
+                </button>
               </div>
-              {merkle.stored_signature && (
+
+              <div className="detail-grid">
                 <div className="detail-item">
-                  <span>İmza:</span>
-                  <span className="hash-text">{merkle.stored_signature}</span>
-                </div>
-              )}
-              {merkle.signature_valid !== undefined && (
-                <div className="detail-item">
-                  <span>İmza Doğrulaması:</span>
-                  <span
-                    className={
-                      merkle.signature_valid
-                        ? "valid-signature"
-                        : "invalid-signature"
-                    }
-                  >
-                    {merkle.signature_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+                  <span className="detail-label">Canlı Merkle Root:</span>
+                  <span className="detail-value hash-text">
+                    {merkle.live_merkle_root}
                   </span>
                 </div>
-              )}
-              <button
-                className="close-button"
-                onClick={() => setSelectedDetail(null)}
-              >
-                Kapat
-              </button>
+                <div className="detail-item">
+                  <span className="detail-label">Kayıtlı Merkle Root:</span>
+                  <span className="detail-value hash-text">
+                    {merkle.stored_merkle_root}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Eşleşme Durumu:</span>
+                  <span
+                    className={`detail-value status-badge ${
+                      merkle.match ? "match-valid" : "match-invalid"
+                    }`}
+                  >
+                    {merkle.match ? "✓ Tutarlı" : "✗ Tutarsız"}
+                  </span>
+                </div>
+                {merkle.stored_signature && (
+                  <div className="detail-item">
+                    <span className="detail-label">İmza:</span>
+                    <span className="detail-value hash-text">
+                      {merkle.stored_signature}
+                    </span>
+                  </div>
+                )}
+                {merkle.signature_valid !== undefined && (
+                  <div className="detail-item">
+                    <span className="detail-label">İmza Doğrulaması:</span>
+                    <span
+                      className={`detail-value status-badge ${
+                        merkle.signature_valid
+                          ? "valid-signature"
+                          : "invalid-signature"
+                      }`}
+                    >
+                      {merkle.signature_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -276,74 +382,105 @@ const BlockchainPage: React.FC = () => {
 
   // Blok kartını render eden yardımcı fonksiyon
   const renderBlockCard = (block: Block) => (
-    <div className="block-card" key={block.index}>
-      <p>
-        <strong>Index:</strong> {block.index}
-      </p>
-      <p>
-        <strong>Aday:</strong> {block.candidate}
-      </p>
-      <p>
-        <strong>Zaman:</strong>{" "}
-        {new Date(block.timestamp * 1000).toLocaleString()}
-      </p>
-      <p>
-        <strong>Seçmen Hash:</strong> {block.voter_id_hash}
-      </p>
-      <p>
-        <strong>Önceki Hash:</strong> {block.previous_hash}
-      </p>
-      <p>
-        <strong>Hash:</strong> {block.hash}
-      </p>
+    <div
+      className="block-card"
+      key={block.index}
+      onClick={() => handleDetailClick("block", block)}
+    >
+      <div className="block-header">
+        <span className="block-index">#{block.index}</span>
+        <span className="block-candidate">{block.candidate}</span>
+      </div>
 
-      {block.signature && (
-        <p className="signature">
-          <strong>İmza:</strong>
-          <span className="signature-text">
-            {block.signature.substring(0, 15)}...
+      <div className="block-info">
+        <div className="block-detail">
+          <span className="block-label">Zaman:</span>
+          <span className="block-value">
+            {new Date(block.timestamp * 1000).toLocaleString()}
           </span>
-        </p>
-      )}
+        </div>
+
+        <div className="block-detail">
+          <span className="block-label">Seçmen Hash:</span>
+          <span className="block-value hash-short">
+            {block.voter_id_hash.substring(0, 12)}...
+          </span>
+        </div>
+
+        <div className="block-detail">
+          <span className="block-label">Hash:</span>
+          <span className="block-value hash-short">
+            {block.hash.substring(0, 12)}...
+          </span>
+        </div>
+
+        {block.signature && (
+          <div className="block-detail">
+            <span className="block-label">İmza:</span>
+            <span className="block-value signature-indicator">✓ Mevcut</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 
   // Bölge kartını render eden yardımcı fonksiyon (liste görünümü için)
   const renderRegionCardListView = (regionData: RegionEntry) => (
     <div className="region-card" key={regionData.region}>
-      <h2>{regionData.region}</h2>
       <div className="region-header">
-        <p>
-          <strong>Durum:</strong>{" "}
+        <div className="region-title">
+          <h2>Bölge: {regionData.region}</h2>
+          <span className="block-count-badge">
+            {regionData.blocks.length} Blok
+          </span>
+        </div>
+
+        <button
+          className="region-detail-button"
+          onClick={() => handleDetailClick("region", regionData)}
+        >
+          <span>→</span>
+          Detaylar
+        </button>
+      </div>
+
+      <div className="region-info">
+        <div className="region-stat">
+          <span className="region-label">Durum:</span>
           <span
-            className={
+            className={`region-value status-badge ${
               regionData.status === "OK" ? "status-ok" : "status-broken"
-            }
+            }`}
           >
             {regionData.status === "OK" ? "✓ Geçerli" : "✗ Geçersiz"}
           </span>
-        </p>
-        <p>
-          <strong>Bölge Merkle Root:</strong> {regionData.live_root}
-        </p>
+        </div>
+
+        <div className="region-stat">
+          <span className="region-label">Merkle Root:</span>
+          <span className="region-value hash-display">
+            {regionData.live_root}
+          </span>
+        </div>
 
         {regionData.signatures_valid !== undefined && (
-          <p>
-            <strong>İmza Doğrulaması:</strong>{" "}
+          <div className="region-stat">
+            <span className="region-label">İmza Doğrulaması:</span>
             <span
-              className={
+              className={`region-value status-badge ${
                 regionData.signatures_valid ? "status-ok" : "status-broken"
-              }
+              }`}
             >
               {regionData.signatures_valid ? "✓ Geçerli" : "✗ Geçersiz"}
             </span>
-          </p>
+          </div>
         )}
 
         {regionData.updated_at && (
-          <p>
-            <strong>Güncellendi:</strong> {regionData.updated_at}
-          </p>
+          <div className="region-stat">
+            <span className="region-label">Güncellendi:</span>
+            <span className="region-value">{regionData.updated_at}</span>
+          </div>
         )}
       </div>
 
@@ -424,107 +561,165 @@ const BlockchainPage: React.FC = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="blockchain-container">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ← Geri
-        </button>
-        <p>Yükleniyor...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="blockchain-container">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ← Geri
-        </button>
-        <p className="error">{error}</p>
-      </div>
-    );
-  }
-
-  if (!structure) {
-    return (
-      <div className="blockchain-container">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ← Geri
-        </button>
-        <p>Veri bulunamadı.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="blockchain-container">
-      <button className="back-button" onClick={() => navigate(-1)}>
-        ← Geri
-      </button>
-      <h1>Blockchain Yapısı</h1>
-
-      {/* Görünüm seçenekleri */}
-      <div className="view-options">
-        <button
-          className={`view-button ${viewMode === "list" ? "active" : ""}`}
-          onClick={() => setViewMode("list")}
-        >
-          Liste Görünümü
+      <div className="blockchain-header">
+        <button className="back-button" onClick={() => navigate(-1)}>
+          <span>←</span>
+          Geri
         </button>
-        <button
-          className={`view-button ${viewMode === "tree" ? "active" : ""}`}
-          onClick={() => setViewMode("tree")}
-        >
-          Ağaç Görünümü
-        </button>
+        <div className="header-title">
+          <h1>Blockchain Yapısı</h1>
+          <p>Blok zinciri ve Merkle ağacı analizi</p>
+        </div>
       </div>
 
+      {/* İstatistik Kartları */}
+      <div className="blockchain-stats">
+        <div className="stat-card primary">
+          <div className="stat-content">
+            <h3>Merkle Durumu</h3>
+            <p
+              className={`stat-status ${
+                structure.match ? "status-ok" : "status-error"
+              }`}
+            >
+              {structure.match ? "✓ Tutarlı" : "✗ Tutarsız"}
+            </p>
+          </div>
+        </div>
+
+        <div className="stat-card secondary">
+          <div className="stat-content">
+            <h3>Bölge Sayısı</h3>
+            <p className="stat-number">{structure.regions.length}</p>
+          </div>
+        </div>
+
+        <div className="stat-card tertiary">
+          <div className="stat-content">
+            <h3>Toplam Blok</h3>
+            <p className="stat-number">
+              {structure.regions.reduce(
+                (total, region) => total + region.blocks.length,
+                0
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="stat-card quaternary">
+          <div className="stat-content">
+            <h3>İmza Durumu</h3>
+            <p
+              className={`stat-status ${
+                structure.signature_valid ? "status-ok" : "status-error"
+              }`}
+            >
+              {structure.signature_valid !== undefined
+                ? structure.signature_valid
+                  ? "✓ Geçerli"
+                  : "✗ Geçersiz"
+                : "N/A"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Görünüm Seçenekleri */}
+      <div className="view-controls">
+        <h2>Blockchain Görünümü</h2>
+        <div className="view-options">
+          <button
+            className={`view-button ${viewMode === "list" ? "active" : ""}`}
+            onClick={() => setViewMode("list")}
+          >
+            <span>■</span>
+            Liste Görünümü
+          </button>
+          <button
+            className={`view-button ${viewMode === "tree" ? "active" : ""}`}
+            onClick={() => setViewMode("tree")}
+          >
+            <span>●</span>
+            Ağaç Görünümü
+          </button>
+        </div>
+      </div>
+
+      {/* Merkle Özet Kartı */}
       <div className="merkle-summary">
-        <h2>Ulusal Merkle Ağacı</h2>
+        <div className="summary-header">
+          <h2>Ulusal Merkle Ağacı</h2>
+          <button
+            className="detail-button"
+            onClick={() => handleDetailClick("root", structure)}
+          >
+            <span>→</span>
+            Detayları Gör
+          </button>
+        </div>
+
         <div className="merkle-info">
-          <p>
-            <strong>Canlı Merkle Root:</strong> {structure.live_merkle_root}
-          </p>
-          <p>
-            <strong>Kayıtlı Merkle Root:</strong> {structure.stored_merkle_root}
-          </p>
+          <div className="merkle-item">
+            <span className="merkle-label">Canlı Merkle Root:</span>
+            <span className="merkle-value hash-display">
+              {structure.live_merkle_root}
+            </span>
+          </div>
+
+          <div className="merkle-item">
+            <span className="merkle-label">Kayıtlı Merkle Root:</span>
+            <span className="merkle-value hash-display">
+              {structure.stored_merkle_root}
+            </span>
+          </div>
 
           {structure.stored_signature && (
-            <p>
-              <strong>İmza:</strong>
-              <span className="signature-text">
-                {structure.stored_signature.substring(0, 20)}...
-              </span>
-              <span
-                className={
-                  structure.signature_valid
-                    ? "valid-signature"
-                    : "invalid-signature"
-                }
-              >
-                {structure.signature_valid ? "✓ Geçerli" : "✗ Geçersiz"}
-              </span>
-            </p>
+            <div className="merkle-item">
+              <span className="merkle-label">İmza:</span>
+              <div className="signature-container">
+                <span className="merkle-value signature-text">
+                  {structure.stored_signature.substring(0, 20)}...
+                </span>
+                <span
+                  className={`signature-status ${
+                    structure.signature_valid
+                      ? "valid-signature"
+                      : "invalid-signature"
+                  }`}
+                >
+                  {structure.signature_valid ? "✓ Geçerli" : "✗ Geçersiz"}
+                </span>
+              </div>
+            </div>
           )}
 
-          <p className={structure.match ? "match-valid" : "match-invalid"}>
-            <strong>Eşleşme Durumu:</strong>
-            {structure.match ? "✓ Tutarlı" : "✗ Tutarsız"}
-          </p>
+          <div className="merkle-item">
+            <span className="merkle-label">Eşleşme Durumu:</span>
+            <span
+              className={`merkle-value match-status ${
+                structure.match ? "match-valid" : "match-invalid"
+              }`}
+            >
+              {structure.match ? "✓ Tutarlı" : "✗ Tutarsız"}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* İçerik gösterimi (ya liste ya da ağaç görünümü) */}
-      {viewMode === "list" ? (
-        <div className="region-blocks">
-          {structure.regions.map((regionData) =>
-            renderRegionCardListView(regionData)
-          )}
-        </div>
-      ) : (
-        renderTreeView()
-      )}
+      <div className="blockchain-content">
+        {viewMode === "list" ? (
+          <div className="region-blocks">
+            {structure.regions.map((regionData) =>
+              renderRegionCardListView(regionData)
+            )}
+          </div>
+        ) : (
+          renderTreeView()
+        )}
+      </div>
 
       {/* Detay Modalı */}
       {renderDetailModal()}

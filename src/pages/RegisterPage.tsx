@@ -4,7 +4,13 @@ import axios from "axios";
 import "./RegisterPage.css";
 
 const regions = [
-  "Marmara", "Ege", "Akdeniz", "İç Anadolu", "Karadeniz", "Doğu Anadolu", "Güneydoğu Anadolu"
+  "Marmara",
+  "Ege",
+  "Akdeniz",
+  "İç Anadolu",
+  "Karadeniz",
+  "Doğu Anadolu",
+  "Güneydoğu Anadolu",
 ];
 
 const RegisterPage: React.FC = () => {
@@ -14,11 +20,13 @@ const RegisterPage: React.FC = () => {
     full_name: "",
     region: "Marmara",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -36,7 +44,7 @@ const RegisterPage: React.FC = () => {
         tc: form.tc,
         full_name: form.full_name,
         region: form.region,
-        password: form.password
+        password: form.password,
       });
       navigate("/"); // login sayfasına yönlendir
     } catch (err: any) {
@@ -47,26 +55,30 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="register-wrapper">
       <div className="register-left">
-        <h1>E-Seçim'e Katılmak İçin Kayıt Olun</h1>
+        <h1>Elektronik Seçim Sistemi Kayıt Platformu</h1>
         <ul className="info-points">
-          <li>Kayıt işlemi sadece 1 dakika sürer.</li>
-          <li>Kimlik doğrulamanız güvenli bir şekilde gerçekleştirilir.</li>
-          <li>Tüm bilgileriniz şifreli olarak saklanır.</li>
-          <li>Oy verme işlemi için kayıt zorunludur.</li>
+          <li>Güvenli blockchain teknolojisi ile şeffaf seçim süreci</li>
+          <li>
+            Kimlik doğrulama işlemleri güvenli protokollerle gerçekleştirilir
+          </li>
+          <li>Kişisel verileriniz şifreli olarak korunur</li>
+          <li>Seçim sürecine katılım için kayıt işlemi zorunludur</li>
+          <li>Merkle ağacı teknolojisi ile veri bütünlüğü sağlanır</li>
         </ul>
       </div>
 
       <div className="register-right">
         <form onSubmit={handleSubmit} className="register-form">
-          <h2>Kayıt Ol</h2>
+          <h2>Seçmen Kaydı</h2>
 
-          <label>T.C. Kimlik No</label>
+          <label>T.C. Kimlik Numarası</label>
           <input
             type="text"
             name="tc"
             value={form.tc}
             onChange={handleChange}
             maxLength={11}
+            placeholder="11 haneli T.C. kimlik numaranız"
             required
           />
 
@@ -76,39 +88,46 @@ const RegisterPage: React.FC = () => {
             name="full_name"
             value={form.full_name}
             onChange={handleChange}
+            placeholder="Tam adınız ve soyadınız"
             required
           />
 
-          <label>Bölge</label>
+          <label>Bölge Seçimi</label>
           <select name="region" value={form.region} onChange={handleChange}>
-            {regions.map(r => <option key={r} value={r}>{r}</option>)}
+            {regions.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
           </select>
 
-          <label>Şifre Oluştur</label>
+          <label>Güvenlik Şifresi</label>
           <input
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
+            placeholder="Güçlü bir şifre oluşturun"
             required
           />
 
-          <label>Şifreyi Onayla</label>
+          <label>Şifre Onayı</label>
           <input
             type="password"
             name="confirmPassword"
             value={form.confirmPassword}
             onChange={handleChange}
+            placeholder="Şifrenizi tekrar girin"
             required
           />
 
           {error && <p className="error">{error}</p>}
 
-          <button type="submit">Kayıt Ol</button>
+          <button type="submit">Kayıt İşlemini Tamamla</button>
 
           <div className="register-links">
             <p>
-              Zaten bir hesabınız var mı? <Link to="/">Giriş Yap</Link>
+              Mevcut hesabınız var mı? <Link to="/">Sisteme Giriş Yapın</Link>
             </p>
           </div>
         </form>

@@ -17,6 +17,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import TurkeyRegionMap from "../components/TurkeyRegionMap";
 import "./ResultsPage.css";
 
 interface ResultsData {
@@ -46,7 +47,7 @@ const COLORS = [
   "#f59e0b",
 ];
 
-type ChartType = "pie" | "bar" | "line" | "comparison";
+type ChartType = "pie" | "bar" | "line" | "comparison" | "map";
 
 const ResultsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,6 +55,8 @@ const ResultsPage: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("Ulusal");
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedChart, setSelectedChart] = useState<ChartType>("comparison");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Bölge değiştiğinde, eğer trend analizi seçiliyse ve bölge Ulusal değilse
   // seçili grafik türünü karşılaştırmalı görünüme değiştir
@@ -64,26 +67,34 @@ const ResultsPage: React.FC = () => {
   }, [selectedRegion, selectedChart]);
 
   useEffect(() => {
-    axios
-      .get<Record<string, any[]>>("http://127.0.0.1:8000/chains")
-      .then((res) => {
-        const raw = res.data;
-        const tally: ResultsData = {};
-
-        Object.entries(raw).forEach(([region, blocks]) => {
-          tally[region] = {};
-          blocks
-            .filter((b) => b.index > 0)
-            .forEach((b) => {
-              tally[region][b.candidate] =
-                (tally[region][b.candidate] || 0) + 1;
-            });
-        });
-
-        setResults(tally);
-      })
-      .catch(() => console.error("Zincir verisi alınamadı"));
+    fetchResults();
   }, []);
+
+  const fetchResults = async () => {
+    try {
+      const response = await axios.get<Record<string, any[]>>(
+        "http://127.0.0.1:8000/chains"
+      );
+      const raw = response.data;
+      const tally: ResultsData = {};
+
+      Object.entries(raw).forEach(([region, blocks]) => {
+        tally[region] = {};
+        blocks
+          .filter((b) => b.index > 0)
+          .forEach((b) => {
+            tally[region][b.candidate] = (tally[region][b.candidate] || 0) + 1;
+          });
+      });
+
+      setResults(tally);
+      setLoading(false);
+    } catch (err) {
+      setError("Seçim sonuçları alınamadı");
+      setLoading(false);
+      console.error("Zincir verisi alınamadı:", err);
+    }
+  };
 
   const allRegions = ["Ulusal", ...STATIC_REGIONS];
   const allCandidates = Array.from(
@@ -97,6 +108,90 @@ const ResultsPage: React.FC = () => {
     }
     return regionName;
   };
+
+  // Aday ismine göre emoji döndüren fonksiyon
+  const getCandidateEmoji = (candidateName: string) => {
+    const name = candidateName.toLowerCase();
+
+    // İsim bazlı emoji eşleştirmesi
+    if (name.includes("ahmet") || name.includes("ahmed")) return "👨‍💼";
+    if (name.includes("mehmet") || name.includes("muhammet")) return "👨‍🎓";
+    if (name.includes("ali") || name.includes("alı")) return "👨‍⚖️";
+    if (name.includes("mustafa")) return "👨‍🏫";
+    if (name.includes("fatma") || name.includes("hatice")) return "👩‍💼";
+    if (name.includes("ayşe") || name.includes("aise")) return "👩‍🎓";
+    if (name.includes("zeynep") || name.includes("zeinep")) return "👩‍⚖️";
+    if (name.includes("emine")) return "👩‍🏫";
+    if (name.includes("hasan") || name.includes("hüseyin")) return "👨‍💻";
+    if (name.includes("ibrahim") || name.includes("ismail")) return "👨‍🔬";
+    if (name.includes("ömer") || name.includes("omer")) return "👨‍🎨";
+    if (name.includes("yusuf") || name.includes("yakup")) return "👨‍🚀";
+    if (name.includes("murat") || name.includes("murad")) return "👨‍🏭";
+    if (name.includes("kemal") || name.includes("kamal")) return "👨‍🎯";
+    if (name.includes("selim") || name.includes("salim")) return "👨‍🎪";
+
+    // Genel kategoriler
+    if (name.includes("dr.") || name.includes("doktor")) return "👨‍⚕️";
+    if (name.includes("prof.") || name.includes("profesör")) return "👨‍🏫";
+    if (name.includes("mühendis") || name.includes("engineer")) return "👨‍💻";
+    if (name.includes("avukat") || name.includes("lawyer")) return "👨‍⚖️";
+
+    // Varsayılan emojiler (sırayla)
+    const defaultEmojis = ["👨‍💼", "👩‍💼", "👨‍🎓", "👩‍🎓", "👨‍⚖️", "👩‍⚖️", "👨‍🏫", "👩‍🏫"];
+    const hash = candidateName
+      .split("")
+      .reduce((a, b) => a + b.charCodeAt(0), 0);
+    return defaultEmojis[hash % defaultEmojis.length];
+  };
+
+  // Loading durumu
+  if (loading) {
+    return (
+      <div className="results-page">
+        <div className="results-header">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <span>←</span>
+            Geri
+          </button>
+          <div className="header-title">
+            <h1>Seçim Sonuçları</h1>
+            <p>Bölgelere göre aday bazlı oy dağılımı ve analiz</p>
+          </div>
+        </div>
+
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Seçim sonuçları yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error durumu
+  if (error) {
+    return (
+      <div className="results-page">
+        <div className="results-header">
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <span>←</span>
+            Geri
+          </button>
+          <div className="header-title">
+            <h1>Seçim Sonuçları</h1>
+            <p>Bölgelere göre aday bazlı oy dağılımı ve analiz</p>
+          </div>
+        </div>
+
+        <div className="error-container">
+          <span className="error-icon">!</span>
+          <p>{error}</p>
+          <button className="retry-button" onClick={fetchResults}>
+            Tekrar Dene
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Grafik verileri için bölge isimlerini düzelt
   const multiSeriesData = STATIC_REGIONS.map((region) => ({
@@ -348,15 +443,20 @@ const ResultsPage: React.FC = () => {
   return (
     <div className="results-page">
       <div className="page-container">
-        <header className="results-header">
+        {/* Modern Header */}
+        <div className="results-header">
           <button className="back-button" onClick={() => navigate(-1)}>
-            ← Geri
+            <span>←</span>
+            Geri
           </button>
-          <h1>Seçim Sonuçları</h1>
-          <p>Bölgelere göre aday bazlı oy dağılımı ve toplamlar</p>
-        </header>
+          <div className="header-title">
+            <h1>Seçim Sonuçları</h1>
+            <p>Bölgelere göre aday bazlı oy dağılımı ve analiz</p>
+          </div>
+        </div>
 
-        <section className="summary-cards">
+        {/* İstatistik Kartları */}
+        <div className="results-stats">
           {allCandidates.map((cand, i) => {
             const total = Object.values(results).reduce(
               (sum, reg) => sum + (reg[cand] || 0),
@@ -375,85 +475,139 @@ const ResultsPage: React.FC = () => {
               totalVotes > 0 ? ((total / totalVotes) * 100).toFixed(1) : "0";
 
             return (
-              <div key={cand} className={`card card-${i % COLORS.length}`}>
-                <div className="card-icon">👤</div>
-                <h3>{cand}</h3>
-                <div className="card-details">
-                  <p className="card-votes">{total} Oy</p>
-                  <p className="card-percentage">%{percentage}</p>
+              <div
+                key={cand}
+                className={`candidate-card candidate-${i % COLORS.length}`}
+              >
+                <div className="candidate-icon">{getCandidateEmoji(cand)}</div>
+                <div className="candidate-info">
+                  <h3>{cand}</h3>
+                  <div className="candidate-stats">
+                    <span className="vote-count">
+                      {total.toLocaleString()} Oy
+                    </span>
+                    <span className="vote-percentage">%{percentage}</span>
+                  </div>
                 </div>
               </div>
             );
           })}
-        </section>
+        </div>
 
-        <section className="main-dashboard">
-          <aside className="filter-panel">
-            <label htmlFor="region">Bölge Seç:</label>
-            <select
-              id="region"
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-            >
-              {allRegions.map((r) => (
-                <option key={r} value={r}>
-                  {r === "Iç Anadolu" ? "İç Anadolu" : r}
-                </option>
-              ))}
-            </select>
+        {/* Ana Dashboard */}
+        <div className="main-dashboard">
+          {/* Kontrol Paneli */}
+          <div className="control-panel">
+            <div className="region-selector">
+              <h3>Bölge Seçimi</h3>
+              <select
+                id="region"
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+                className="region-select"
+              >
+                {allRegions.map((r) => (
+                  <option key={r} value={r}>
+                    {r === "Iç Anadolu" ? "İç Anadolu" : r}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="chart-type-selector">
+              <h3>Görünüm Türü</h3>
+              <div className="chart-tabs">
+                <button
+                  className={`chart-tab ${
+                    selectedChart === "pie" ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedChart("pie")}
+                >
+                  <span>○</span>
+                  Pasta Grafik
+                </button>
+                <button
+                  className={`chart-tab ${
+                    selectedChart === "bar" ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedChart("bar")}
+                >
+                  <span>■</span>
+                  Çubuk Grafik
+                </button>
+                {selectedRegion === "Ulusal" && (
+                  <button
+                    className={`chart-tab ${
+                      selectedChart === "line" ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedChart("line")}
+                  >
+                    <span>▲</span>
+                    Trend Analizi
+                  </button>
+                )}
+                <button
+                  className={`chart-tab ${
+                    selectedChart === "comparison" ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedChart("comparison")}
+                >
+                  <span>◆</span>
+                  Karşılaştırma
+                </button>
+                <button
+                  className={`chart-tab ${
+                    selectedChart === "map" ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedChart("map")}
+                >
+                  <span>●</span>
+                  Harita Görünümü
+                </button>
+              </div>
+            </div>
 
             <div className="legend-container">
-              <h3>Adaylar</h3>
-              <ul className="custom-legend">
+              <h3>Aday Listesi</h3>
+              <div className="candidate-legend">
                 {allCandidates.map((candidate, index) => (
-                  <li key={candidate} className="legend-item">
+                  <div key={candidate} className="legend-item">
                     <span
                       className="legend-color"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
                     <span className="legend-label">{candidate}</span>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
-          </aside>
+          </div>
 
+          {/* Grafik Paneli */}
           <div className="chart-panel">
-            <h2>
-              {selectedRegion === "Ulusal"
-                ? "Ulusal Oy Dağılımı"
-                : `${formatRegionName(
-                    selectedRegion
-                  )} Bölgesindeki Oy Dağılımı`}
-            </h2>
-
-            <div className="chart-tabs">
-              <button
-                className={selectedChart === "pie" ? "active" : ""}
-                onClick={() => setSelectedChart("pie")}
-              >
-                Pasta Grafik
-              </button>
-              <button
-                className={selectedChart === "bar" ? "active" : ""}
-                onClick={() => setSelectedChart("bar")}
-              >
-                Çubuk Grafik
-              </button>
-              {selectedRegion === "Ulusal" && (
-                <button
-                  className={selectedChart === "line" ? "active" : ""}
-                  onClick={() => setSelectedChart("line")}
-                >
-                  Trend Analizi
-                </button>
-              )}
-              <button
-                className={selectedChart === "comparison" ? "active" : ""}
-                onClick={() => setSelectedChart("comparison")}
-              >
-                Karşılaştırmalı Görünüm
-              </button>
+            <div className="chart-header">
+              <h2>
+                {selectedRegion === "Ulusal"
+                  ? "Ulusal Oy Dağılımı"
+                  : `${formatRegionName(selectedRegion)} Bölgesi Oy Dağılımı`}
+              </h2>
+              <div className="chart-info">
+                <span className="total-votes">
+                  Toplam:{" "}
+                  {selectedRegion === "Ulusal"
+                    ? Object.values(results)
+                        .reduce(
+                          (sum, reg) =>
+                            sum + Object.values(reg).reduce((s, v) => s + v, 0),
+                          0
+                        )
+                        .toLocaleString()
+                    : Object.values(results[selectedRegion] || {})
+                        .reduce((s, v) => s + v, 0)
+                        .toLocaleString()}{" "}
+                  Oy
+                </span>
+              </div>
             </div>
 
             {/* Karşılaştırmalı Görünüm - Tüm grafikler yan yana */}
@@ -661,8 +815,31 @@ const ResultsPage: React.FC = () => {
                 </ResponsiveContainer>
               </div>
             )}
+
+            {/* Türkiye Haritası Görünümü */}
+            {selectedChart === "map" && (
+              <div className="chart-single map-view">
+                <TurkeyRegionMap
+                  data={STATIC_REGIONS.map((region) => ({
+                    region: formatRegionName(region),
+                    candidates: allCandidates.map((candidate) => ({
+                      name: candidate,
+                      votes: results[region]?.[candidate] || 0,
+                    })),
+                  }))}
+                  colors={COLORS}
+                  onRegionClick={(region) => {
+                    // Haritadan bölge seçildiğinde o bölgeyi seç
+                    const originalRegionName =
+                      region === "İç Anadolu" ? "Iç Anadolu" : region;
+                    setSelectedRegion(originalRegionName);
+                    setSelectedChart("comparison");
+                  }}
+                />
+              </div>
+            )}
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
