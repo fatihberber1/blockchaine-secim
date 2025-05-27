@@ -12,8 +12,20 @@ const VotePage: React.FC = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<string | null>(
+    null
+  );
   const [showConfirm, setShowConfirm] = useState<boolean>(false);
+
+  // Aday resimlerini eşleştiren fonksiyon
+  const getCandidateImage = (candidateName: string): string => {
+    const imageMap: { [key: string]: string } = {
+      "Ahmet Yılmaz": "/Ahmet Yılmaz.png",
+      "Ayşe Demir": "/Ayşe Demir.png",
+      "Mehmet Kaya": "/Mehmet Kaya.png",
+    };
+    return imageMap[candidateName] || "/vite.svg"; // Varsayılan resim
+  };
 
   useEffect(() => {
     fetchCandidates();
@@ -25,7 +37,9 @@ const VotePage: React.FC = () => {
       const response = await axios.get("http://127.0.0.1:8000/candidates", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const candidateList = response.data.candidates.map((name: string) => ({ name }));
+      const candidateList = response.data.candidates.map((name: string) => ({
+        name,
+      }));
       setCandidates(candidateList);
     } catch {
       setError("Adaylar yüklenemedi.");
@@ -83,7 +97,15 @@ const VotePage: React.FC = () => {
         <div className="candidates-grid">
           {candidates.map((candidate, idx) => (
             <div className="candidate-card" key={idx}>
-              <div className="card-icon" role="img" aria-label="avatar">👤</div>
+              <img
+                src={getCandidateImage(candidate.name)}
+                alt={candidate.name}
+                className="candidate-image"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/vite.svg"; // Resim yüklenemezse varsayılan
+                }}
+              />
               <h3>{candidate.name}</h3>
               <button onClick={() => handleVoteClick(candidate.name)}>
                 Oy Ver
@@ -96,8 +118,18 @@ const VotePage: React.FC = () => {
       {showConfirm && selectedCandidate && (
         <div className="confirm-overlay">
           <div className="confirm-card">
+            <img
+              src={getCandidateImage(selectedCandidate)}
+              alt={selectedCandidate}
+              className="confirm-candidate-image"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/vite.svg";
+              }}
+            />
             <h3>
-              {selectedCandidate} isimli adaya oy vermek istediğinize emin misiniz?
+              {selectedCandidate} isimli adaya oy vermek istediğinize emin
+              misiniz?
             </h3>
             <div className="confirm-buttons">
               <button className="confirm-yes" onClick={confirmVote}>

@@ -20,11 +20,58 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [adminError, setAdminError] = useState<string | null>(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [tcError, setTcError] = useState<string | null>(null);
+
+  const validateTC = (tc: string): boolean => {
+    // TC kimlik numarası 11 haneli olmalı ve 0 ile başlamamalı
+    if (tc.length !== 11 || tc[0] === "0") {
+      return false;
+    }
+
+    const digits = tc.split("").map(Number);
+
+    // 1, 3, 5, 7, 9. hanelerin toplamı
+    const oddSum = digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
+
+    // 2, 4, 6, 8. hanelerin toplamı
+    const evenSum = digits[1] + digits[3] + digits[5] + digits[7];
+
+    // 10. hane kontrolü: (oddSum * 7 - evenSum) % 10 = 10. hane
+    const tenthDigit = (oddSum * 7 - evenSum) % 10;
+    if (tenthDigit !== digits[9]) {
+      return false;
+    }
+
+    // 11. hane kontrolü: (ilk 10 hanenin toplamı) % 10 = 11. hane
+    const first10Sum = digits
+      .slice(0, 10)
+      .reduce((sum, digit) => sum + digit, 0);
+    const eleventhDigit = first10Sum % 10;
+    if (eleventhDigit !== digits[10]) {
+      return false;
+    }
+
+    return true;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "tc") {
+      setTcError(null);
+      // TC kimlik numarası için sadece sayılara izin ver
+      const filteredValue = value.replace(/[^0-9]/g, "");
+      setForm({ ...form, [name]: filteredValue });
+
+      // TC doğrulaması - sadece 11 haneli tam sayı varsa kontrol et
+      if (filteredValue.length === 11 && !validateTC(filteredValue)) {
+        setTcError("Geçersiz T.C. kimlik numarası");
+      }
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleAdminChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +81,12 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setTcError(null);
+
+    if (!validateTC(form.tc)) {
+      setTcError("Geçersiz T.C. kimlik numarası");
+      return;
+    }
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/login", form);
@@ -64,6 +117,7 @@ const LoginPage: React.FC = () => {
     setShowAdminLogin(!showAdminLogin);
     setError(null);
     setAdminError(null);
+    setTcError(null);
   };
 
   return (
@@ -98,9 +152,10 @@ const LoginPage: React.FC = () => {
               value={form.tc}
               onChange={handleChange}
               maxLength={11}
-              placeholder="11 haneli T.C. kimlik numaranız"
+              placeholder="T.C. kimlik numaranız"
               required
             />
+            {tcError && <p className="error">{tcError}</p>}
 
             <label>Bölge Seçimi</label>
             <select name="region" value={form.region} onChange={handleChange}>
@@ -111,13 +166,13 @@ const LoginPage: React.FC = () => {
               ))}
             </select>
 
-            <label>Güvenlik Şifresi</label>
+            <label>Şifre</label>
             <input
               type="password"
               name="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="Kayıt sırasında oluşturduğunuz şifre"
+              placeholder="Şifreniz"
               required
             />
 

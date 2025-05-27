@@ -176,8 +176,24 @@
 }
 
 .candidate-icon {
-  font-size: 2.5rem;
-  opacity: 0.8;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid;
+  border-color: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.candidate-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.candidate-card:hover .candidate-icon img {
+  transform: scale(1.1);
 }
 
 .candidate-info {

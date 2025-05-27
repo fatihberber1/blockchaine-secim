@@ -1,106 +1,201 @@
 .vote-wrapper {
-  position: relative; /* logout butonu için gerekli */
+  position: relative;
   min-height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, #6366f1 0%, #d946ef 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   box-sizing: border-box;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
 
 .logout-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
+  top: 30px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 50px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
+
 .logout-btn:hover {
-  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .vote-sheet {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 40px 30px;
-  max-width: 900px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 50px 40px;
+  max-width: 1100px;
   width: 100%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .vote-sheet h2 {
-  font-size: 2rem;
-  color: #111827;
-  margin-bottom: 24px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.vote-sheet::after {
+  display: block;
+  font-size: 1rem;
+  color: #718096;
+  font-weight: 500;
+  margin-bottom: 40px;
+  opacity: 0.8;
 }
 
 .error {
-  color: #dc2626;
-  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+  color: #c53030;
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
   font-size: 1rem;
+  font-weight: 500;
+  border: 1px solid #fbb6ce;
 }
+
 .success {
-  color: #059669;
-  margin-bottom: 16px;
+  background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+  color: #2f855a;
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
   font-size: 1rem;
+  font-weight: 500;
+  border: 1px solid #68d391;
 }
 
 .candidates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
 }
 
 .candidate-card {
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 24px 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.candidate-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
-.candidate-card .card-icon {
-  font-size: 2rem;
-  color: #6b7280;
-  margin-bottom: 12px;
-  opacity: 0.8;
+.candidate-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.candidate-card:hover::before {
+  transform: scaleX(1);
+}
+
+.candidate-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.candidate-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border: 5px solid #e2e8f0;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.candidate-card:hover .candidate-image {
+  border-color: #667eea;
+  transform: scale(1.05);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.25);
 }
 
 .candidate-card h3 {
-  font-size: 1.125rem;
-  color: #1f2937;
-  margin-bottom: 16px;
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .candidate-card button {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 10px 24px;
-  font-size: 1rem;
+  border-radius: 12px;
+  padding: 14px 32px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  letter-spacing: 0.02em;
+  min-width: 120px;
+  position: relative;
+  overflow: hidden;
 }
+
+.candidate-card button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.candidate-card button:hover::before {
+  left: 100%;
+}
+
 .candidate-card button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
 }
 
 .confirm-overlay {
@@ -109,59 +204,138 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .confirm-card {
   background: #ffffff;
-  border-radius: 16px;
-  padding: 30px 40px;
+  border-radius: 24px;
+  padding: 40px;
   text-align: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+  max-width: 450px;
   width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirm-candidate-image {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 24px;
+  border: 4px solid #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .confirm-card h3 {
-  font-size: 1.125rem;
-  color: #111827;
-  margin-bottom: 24px;
+  font-size: 1.3rem;
+  color: #2d3748;
+  margin-bottom: 32px;
+  line-height: 1.6;
+  font-weight: 600;
 }
 
 .confirm-buttons {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .confirm-yes,
 .confirm-no {
   flex: 1;
-  padding: 12px 0;
+  padding: 16px 0;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  letter-spacing: 0.02em;
 }
 
 .confirm-yes {
-  background: #10b981;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
   color: #ffffff;
 }
+
 .confirm-yes:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
 }
 
 .confirm-no {
-  background: #ef4444;
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
   color: #ffffff;
 }
+
 .confirm-no:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 101, 101, 0.4);
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+  .vote-sheet {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+
+  .vote-sheet h2 {
+    font-size: 2rem;
+  }
+
+  .candidates-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .candidate-card {
+    padding: 24px 16px;
+  }
+
+  .candidate-image {
+    width: 160px;
+    height: 160px;
+  }
+
+  .confirm-candidate-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .logout-btn {
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }

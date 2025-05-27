@@ -94,6 +94,16 @@ const AdminPanelPage: React.FC = () => {
     ? Object.entries(stats.candidates).reduce((a, b) => (a[1] > b[1] ? a : b))
     : null;
 
+  // Aday resimlerini eşleştiren fonksiyon
+  const getCandidateImage = (candidateName: string): string => {
+    const imageMap: { [key: string]: string } = {
+      "Ahmet Yılmaz": "/Ahmet Yılmaz.png",
+      "Ayşe Demir": "/Ayşe Demir.png",
+      "Mehmet Kaya": "/Mehmet Kaya.png",
+    };
+    return imageMap[candidateName] || "/vite.svg"; // Varsayılan resim
+  };
+
   return (
     <div className="admin-container">
       <div className="admin-header">
@@ -140,12 +150,28 @@ const AdminPanelPage: React.FC = () => {
           <div className="stat-card tertiary">
             <div className="stat-content">
               <h3>Önde Gelen Aday</h3>
-              <p className="stat-number">
-                {topCandidate ? topCandidate[0] : "Belirlenmedi"}
-              </p>
-              <p className="stat-detail">
-                {topCandidate ? `${topCandidate[1]} oy` : ""}
-              </p>
+              {topCandidate ? (
+                <div className="leading-candidate">
+                  <img
+                    src={getCandidateImage(topCandidate[0])}
+                    alt={topCandidate[0]}
+                    className="leading-candidate-image"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/vite.svg";
+                    }}
+                  />
+                  <div className="leading-candidate-info">
+                    <p className="stat-number">{topCandidate[0]}</p>
+                    <p className="stat-detail">{topCandidate[1]} oy</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="stat-number">Belirlenmedi</p>
+                  <p className="stat-detail"></p>
+                </>
+              )}
             </div>
           </div>
 
@@ -202,48 +228,6 @@ const AdminPanelPage: React.FC = () => {
           </button>
         </div>
       </div>
-
-      {/* Detaylı İstatistikler */}
-      {stats && (
-        <div className="detailed-stats">
-          <h2>■ Detaylı İstatistiksel Analiz</h2>
-          <div className="stats-grid">
-            <div className="stats-section">
-              <h3>● Adaylara Göre Oy Dağılımı</h3>
-              <div className="candidate-list">
-                {Object.entries(stats.candidates)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([candidate, votes], index) => {
-                    const percentage = (
-                      (votes / stats.total_votes) *
-                      100
-                    ).toFixed(1);
-                    return (
-                      <div className="candidate-item" key={candidate}>
-                        <div className="candidate-rank">#{index + 1}</div>
-                        <div className="candidate-info">
-                          <span className="candidate-name">{candidate}</span>
-                          <div className="vote-bar">
-                            <div
-                              className="vote-fill"
-                              style={{ width: `${percentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                        <div className="candidate-stats">
-                          <span className="vote-count">
-                            {votes.toLocaleString()}
-                          </span>
-                          <span className="vote-percentage">%{percentage}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

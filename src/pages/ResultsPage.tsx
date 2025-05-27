@@ -109,7 +109,17 @@ const ResultsPage: React.FC = () => {
     return regionName;
   };
 
-  // Aday ismine göre emoji döndüren fonksiyon
+  // Aday resimlerini eşleştiren fonksiyon
+  const getCandidateImage = (candidateName: string): string => {
+    const imageMap: { [key: string]: string } = {
+      "Ahmet Yılmaz": "/Ahmet Yılmaz.png",
+      "Ayşe Demir": "/Ayşe Demir.png",
+      "Mehmet Kaya": "/Mehmet Kaya.png",
+    };
+    return imageMap[candidateName] || "/vite.svg"; // Varsayılan resim
+  };
+
+  // Aday ismine göre emoji döndüren fonksiyon (geriye dönük uyumluluk için korundu)
   const getCandidateEmoji = (candidateName: string) => {
     const name = candidateName.toLowerCase();
 
@@ -479,7 +489,9 @@ const ResultsPage: React.FC = () => {
                 key={cand}
                 className={`candidate-card candidate-${i % COLORS.length}`}
               >
-                <div className="candidate-icon">{getCandidateEmoji(cand)}</div>
+                <div className="candidate-icon">
+                  <img src={getCandidateImage(cand)} alt={cand} />
+                </div>
                 <div className="candidate-info">
                   <h3>{cand}</h3>
                   <div className="candidate-stats">
